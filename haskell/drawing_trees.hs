@@ -1,13 +1,8 @@
-main :: IO ()
--- main = print "hello world"
-
 -- labeled tree
 newtype LTree a = LNode (a, [LTree a])
 -- pos labeled tree, int value is horizontal posiiton on some depth
 type PosLTree a = LTree (a, Float)
 type Extent = [(Float, Float)]
-
-t = LNode (10, [LNode (10, [])])
 
 -- helper function to, what happens to child nodes?
 movetree :: (PosLTree a, Float) -> PosLTree a
@@ -69,20 +64,3 @@ design' (LNode (label, subtrees)) =
     (resulttree, resultextent)
 
 design tree = fst (design' tree)
-
-lt :: LTree Int
-lt = LNode (1, [LNode (2, [LNode (5, []), LNode (6, []), LNode (7, [])]), LNode (3, []), LNode (4, [LNode (8, []), LNode (9, []), LNode (10, [])])])
-
-treeToList :: PosLTree Int -> [(Int, Float)]
-treeToList (LNode ((label, pos), subtrees)) = foldr (\ a b -> treeToList a ++ b) [(label, pos)] subtrees
-
-a = treeToList (design lt)
-b = snd (design' lt)
-b1 = snd (design' (LNode (2, [LNode (5, []), LNode (6, []), LNode (7, [])])))
-b2 = snd (design' (LNode (3, [])))
-b3 = snd (design' (LNode (4, [LNode (8, []), LNode (9, []), LNode (10, [])])))
-
--- main = print (mergelist [[(10, 20)], [(1, 2)], [(3, 4)]])
--- main = print (fitlist [b1, b2, b3])
-main = print (map moveextent (zip [b1, b2, b3] (fitlist [b1, b2, b3])))
--- main = print a
