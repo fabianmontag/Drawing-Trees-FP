@@ -6,6 +6,7 @@ import { Input } from "./components/Input";
 import { useCanvas } from "./hooks/useCanvas";
 import { twcm } from "../trees/utils";
 import { useTree } from "./hooks/useTree";
+import type { PositionedTreeOrientation } from "../trees/positionedTree";
 
 function App() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -54,7 +55,11 @@ function App() {
     L (R, [])
   ])
 ])`);
-    const [treeHeight, positionedExtentTree, positionedExtentTreeExtent] = useTree(treeString);
+    const [positionedTreeOrientation, setPositionedTreeOrientation] = useState<PositionedTreeOrientation>("Center");
+    const [treeHeight, positionedExtentTree, positionedExtentTreeExtent] = useTree(
+        treeString,
+        positionedTreeOrientation
+    );
 
     // draw
     const draw = (ctx: CanvasRenderingContext2D) => {
@@ -101,11 +106,20 @@ function App() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [positionedExtentTree]);
 
-    // handler
+    // handlers
     const handleChangeExtentsAtDepthLevel = () => {
         const currVal = drawingSettings.drawExtentsAtDepthLevel;
         const nextVal = currVal >= treeHeight ? 0 : currVal + 1;
         changeSettings("drawExtentsAtDepthLevel", nextVal);
+    };
+    const handlePositionedTreeOrientationChange = () => {
+        if (positionedTreeOrientation === "Left") {
+            setPositionedTreeOrientation("Center");
+        } else if (positionedTreeOrientation === "Center") {
+            setPositionedTreeOrientation("Right");
+        } else {
+            setPositionedTreeOrientation("Left");
+        }
     };
 
     useCanvas(canvasRef, draw);
@@ -129,7 +143,6 @@ function App() {
                                 }}
                             />
                         </div>
-
                         <div className="flex flex-row items-center justify-between gap-5">
                             <p>Node Hoz. Seperation</p>
                             <Input
@@ -143,7 +156,6 @@ function App() {
                                 }}
                             />
                         </div>
-
                         <div className="flex flex-row items-center justify-between gap-5">
                             <p>Level Seperation</p>
                             <Input
@@ -157,7 +169,6 @@ function App() {
                                 }}
                             />
                         </div>
-
                         <div className="flex flex-row items-center justify-between gap-5">
                             <p>Draw Extents</p>
                             <Button
@@ -168,21 +179,18 @@ function App() {
                                 {drawingSettings.drawExtents ? "on" : "off"}
                             </Button>
                         </div>
-
                         <div className="flex flex-row items-center justify-between gap-5">
                             <p>Draw Extents at Level</p>
                             <Button onClick={handleChangeExtentsAtDepthLevel}>
                                 {drawingSettings.drawExtentsAtDepthLevel}
                             </Button>
                         </div>
-
                         <div className="flex flex-row items-center justify-between gap-5">
                             <p>Draw True Extents</p>
                             <Button onClick={() => changeSettings("drawTrueExtents", !drawingSettings.drawTrueExtents)}>
                                 {drawingSettings.drawTrueExtents ? "on" : "off"}
                             </Button>
                         </div>
-
                         <div className="flex flex-row items-center justify-between gap-5">
                             <p>Edge Style</p>
                             <Button
@@ -196,7 +204,6 @@ function App() {
                                 {drawingSettings.edgeStyle === "fork" ? "Fork" : "Direct"}
                             </Button>
                         </div>
-
                         <div className="flex flex-row items-center justify-between gap-5">
                             <p>Show Labels</p>
                             <Button onClick={() => changeSettings("showLabels", !drawingSettings.showLabels)}>
@@ -204,6 +211,10 @@ function App() {
                             </Button>
                         </div>
 
+                        <div className="flex flex-row items-center justify-between gap-5">
+                            <p>Tree Orientation</p>
+                            <Button onClick={handlePositionedTreeOrientationChange}>{positionedTreeOrientation}</Button>
+                        </div>
                         <div className="w-full h-full flex flex-col items-start justify-between gap-2">
                             <p>Haskell Tree String</p>
 
