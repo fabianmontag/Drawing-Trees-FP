@@ -13,6 +13,8 @@ function App() {
 
     const [showMenu, setShowMenu] = useState(false);
 
+    const [scale, setScale] = useState(devicePixelRatio);
+
     const [drawingSettings, setDrawingSettings] = useState<DrawingSettings>({
         circleRadius: 15,
         nodeSeperation: 30 * 2,
@@ -65,6 +67,11 @@ function App() {
     const draw = (ctx: CanvasRenderingContext2D) => {
         if (positionedExtentTree !== null) {
             const height = (positionedExtentTreeExtent.length - 1) * 75;
+
+            ctx.save();
+            ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+            ctx.scale(scale, scale);
+            ctx.translate(-ctx.canvas.width / 2, -ctx.canvas.height / 2);
             drawPositionedExtentTree(
                 ctx,
                 positionedExtentTree,
@@ -72,6 +79,7 @@ function App() {
                 ctx.canvas.height / 2 - height / 2,
                 drawingSettings
             );
+            ctx.restore();
         }
     };
 
@@ -92,7 +100,7 @@ function App() {
         drawOnCanvas();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [drawingSettings]);
+    }, [drawingSettings, scale]);
 
     // run effect when tree changed to draw tree again
     useEffect(() => {
@@ -120,6 +128,10 @@ function App() {
         } else {
             setPositionedTreeOrientation("Left");
         }
+    };
+
+    const handleScale = (e: React.FormEvent<HTMLInputElement>) => {
+        setScale(Math.max(0.1, Math.min(Number((e.target as HTMLInputElement).value) / 10, 3)));
     };
 
     useCanvas(canvasRef, draw);
@@ -215,6 +227,18 @@ function App() {
                             <p>Tree Orientation</p>
                             <Button onClick={handlePositionedTreeOrientationChange}>{positionedTreeOrientation}</Button>
                         </div>
+
+                        <div className="flex flex-row items-center justify-between gap-5">
+                            <p>Scale</p>
+                            <Input
+                                type="range"
+                                value={Math.trunc(scale * 10)}
+                                min={1}
+                                max={30}
+                                onChange={handleScale}
+                            ></Input>
+                        </div>
+
                         <div className="w-full h-full flex flex-col items-start justify-between gap-2">
                             <p>Haskell Tree String</p>
 
