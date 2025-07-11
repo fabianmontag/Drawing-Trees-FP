@@ -14,6 +14,8 @@ function App() {
     const [showMenu, setShowMenu] = useState(false);
 
     const [scale, setScale] = useState(devicePixelRatio);
+    const [doRef, setDoRef] = useState(false);
+    const [doRefPos, setDoRefPos] = useState(false);
 
     const [drawingSettings, setDrawingSettings] = useState<DrawingSettings>({
         circleRadius: 15,
@@ -21,8 +23,8 @@ function App() {
         levelSeperation: 30 * 2,
         drawExtents: false,
         drawExtentsAtDepthLevel: 0,
-        drawTrueExtents: true,
-        edgeStyle: "fork",
+        drawTrueExtents: false,
+        edgeStyle: "direct",
         showLabels: true,
     });
     function changeSettings<T extends keyof DrawingSettings>(key: T, value: DrawingSettings[T]) {
@@ -35,32 +37,28 @@ function App() {
   L (B, [
     L (C, [
       L (D, []),
-      L (E, [])
-    ]),
-    L (F, [])
+      L (E, []),
+      L (F, [])
+    ])
   ]), 
   L (G, [
-    L (H, [
-      L (I, [
-        L (J, [])
-      ])
-    ]),
-    L (K, [])
+    L (H, []),
+    L (I, []),
+    L (J, [])
   ]),
+  L (K, []),
   L (L, [
     L (M, []),
     L (N, []),
-    L (O, [
-      L (P, []),
-      L (Q, [])
-    ]),
-    L (R, [])
+    L (O, [])
   ])
 ])`);
     const [positionedTreeOrientation, setPositionedTreeOrientation] = useState<PositionedTreeOrientation>("Center");
     const [treeHeight, positionedExtentTree, positionedExtentTreeExtent] = useTree(
         treeString,
-        positionedTreeOrientation
+        positionedTreeOrientation,
+        doRef,
+        doRefPos
     );
 
     // draw
@@ -100,7 +98,7 @@ function App() {
         drawOnCanvas();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [drawingSettings, scale]);
+    }, [drawingSettings, scale, positionedExtentTree, positionedExtentTreeExtent, doRef, doRefPos]);
 
     // run effect when tree changed to draw tree again
     useEffect(() => {
@@ -237,6 +235,16 @@ function App() {
                                 max={30}
                                 onChange={handleScale}
                             ></Input>
+                        </div>
+
+                        <div className="flex flex-row items-center justify-between gap-5">
+                            <p>Reflect (pre-design)</p>
+                            <Button onClick={() => setDoRef(!doRef)}>{doRef ? "on" : "off"}</Button>
+                        </div>
+
+                        <div className="flex flex-row items-center justify-between gap-5">
+                            <p>Reflect Position (post-design)</p>
+                            <Button onClick={() => setDoRefPos(!doRefPos)}>{doRefPos ? "on" : "off"}</Button>
                         </div>
 
                         <div className="w-full h-full flex flex-col items-start justify-between gap-2">

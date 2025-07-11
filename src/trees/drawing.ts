@@ -19,7 +19,8 @@ export const drawPositionedExtentTree = <T>(
     y: number,
     drawingSettings: DrawingSettings,
     d = 0,
-    prevX?: number
+    prevX?: number,
+    index?: number
 ) => {
     const { circleRadius: cr, nodeSeperation: s, levelSeperation: dy } = drawingSettings;
 
@@ -33,8 +34,8 @@ export const drawPositionedExtentTree = <T>(
             ctx.lineTo(x, y - dy / 2);
             ctx.lineTo(x, y);
         } else {
-            ctx.moveTo(prevX, y - dy + cr);
-            ctx.lineTo(x, y - cr);
+            ctx.moveTo(prevX, y - dy);
+            ctx.lineTo(x, y);
         }
 
         ctx.stroke();
@@ -43,10 +44,16 @@ export const drawPositionedExtentTree = <T>(
 
     let th = 0;
     // draw the child nodes
-    for (const subtree of positionedExtentTree[1]) {
+    for (let i = 0; i < positionedExtentTree[1].length; i++) {
+        const subtree = positionedExtentTree[1][i];
         const subtreeX = x + subtree[0][1] * s;
-        th = Math.max(th, drawPositionedExtentTree(ctx, subtree, subtreeX, y + dy, drawingSettings, d + 1, x));
+        th = Math.max(th, drawPositionedExtentTree(ctx, subtree, subtreeX, y + dy, drawingSettings, d + 1, x, i));
     }
+
+    // for (const subtree of positionedExtentTree[1]) {
+    //     const subtreeX = x + subtree[0][1] * s;
+    //     th = Math.max(th, drawPositionedExtentTree(ctx, subtree, subtreeX, y + dy, drawingSettings, d + 1, x, ));
+    // }
 
     // draw partial line from parent to child to middle
     // this prevents multiple children drawing this one
@@ -87,8 +94,9 @@ export const drawPositionedExtentTree = <T>(
     }
 
     // draw extent
-    const extents = positionedExtentTree[0][0][1];
     if (drawingSettings.drawExtents && d === drawingSettings.drawExtentsAtDepthLevel) {
+        const extents = positionedExtentTree[0][0][1];
+
         ctx.save();
         ctx.beginPath();
 
@@ -126,8 +134,20 @@ export const drawPositionedExtentTree = <T>(
         }
         path.closePath();
 
-        ctx.setLineDash([10]);
-        ctx.strokeStyle = getRandomColor();
+        ctx.setLineDash([14]);
+        let val = (index ?? 0) % 4;
+        if (val == 0) {
+            ctx.strokeStyle = "rgb(0, 152, 250)";
+        } else if (val == 1) {
+            ctx.strokeStyle = "rgb(246, 27, 26)";
+        } else if (val == 2) {
+            ctx.strokeStyle = "rgb(255, 163, 43)";
+        } else if (val == 3) {
+            ctx.strokeStyle = "rgb(0, 168, 37)";
+        } else {
+            ctx.strokeStyle = getRandomColor();
+        }
+
         ctx.lineCap = ctx.lineJoin = "round";
         ctx.lineWidth = 3;
         ctx.stroke(path);

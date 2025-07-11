@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { LabeledTree } from "./positionedTree";
+import type { LabeledTree, PositionedExtentTree } from "./positionedTree";
 
 // tailwind class merge
 // helper function to conditionally add tw classes, merges classes together
@@ -33,4 +33,16 @@ export const getRandomColor = () => {
 
 export const getTreeHeight = <T>(ltree: LabeledTree<T>): number => {
     return ltree[1].reduce((acc: number, st: LabeledTree<T>) => Math.max(acc, getTreeHeight(st) + 1), 0);
+};
+
+export const ref = <T>([l, children]: LabeledTree<T>): LabeledTree<T> => {
+    return [l, children.map(ref).reverse()];
+};
+
+// export const refPos = <T>([[l, pos], children]: PositionedTree<T>): PositionedTree<T> => {
+//     return [[l, -pos], children.map(refPos)];
+// };
+
+export const refPosExt = <T>([[[l, ext], pos], children]: PositionedExtentTree<T>): PositionedExtentTree<T> => {
+    return [[[l, ext.map(([a, b]) => [-b, -a])], -pos], children.map(refPosExt)];
 };
